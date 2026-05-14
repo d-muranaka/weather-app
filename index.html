@@ -82,7 +82,7 @@ h2 {
 .temp {
   font-weight: bold;
   font-size: 14px;
-  white-space: nowrap;   /* ← これが決定打 */
+  white-space: nowrap; 
 }
 
 /* 雨 */
@@ -221,7 +221,8 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
 
     div.innerHTML =
       `<div>${formatDate(date)}</div>
-       <img src="${getIcon(map[date].weather)}" class="small">
+       <img src="${getIcon(map[date].weather)}" class="small"></img>
+       <div class="temp">
          <span style="color:${tempColor(max)}">${Math.round(max)}℃</span> /
          <span style="color:${tempColor(min)}">${Math.round(min)}℃</span>
        </div>`;
