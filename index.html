@@ -10,11 +10,18 @@ body {
   text-align: center;
   margin: 0;
 
-  /* ✅ サイト背景 */
+  /* ✅ 背景画像 */
   background-image: url("images/bg-main.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+}
+
+/* ✅ タイトル見やすく */
+h2 {
+  color: white;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+  margin-top: 30px;
 }
 
 /* ===== 今日カード ===== */
@@ -59,12 +66,10 @@ body {
   border-radius: 12px;
   width: 110px;
 
-  /* ✅ ここが重要 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-
   height: 180px;
 
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -72,13 +77,25 @@ body {
 
 .small-icon {
   width: 60px;
-  height: 60px;           /* ✅ サイズ固定 */
-  object-fit: contain;     /* ✅ 画像ズレ防止 */
-  margin: 5px 0;
+  height: 60px;
+  object-fit: contain;
 }
 
+/* ✅ 温度ズレ修正 */
 .temp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   font-weight: bold;
+}
+
+.max {
+  font-size: 14px;
+}
+
+.min {
+  font-size: 14px;
 }
 
 /* ===== 雨 ===== */
@@ -126,14 +143,14 @@ body {
 const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
 const city = "Tokyo";
 
-/* ===== 日付 ===== */
+/* 日付 */
 function formatDate(dateStr){
   const d = new Date(dateStr);
   const w = ["日","月","火","水","木","金","土"];
   return (d.getMonth()+1)+"月"+d.getDate()+"日("+w[d.getDay()]+")";
 }
 
-/* ===== アイコン ===== */
+/* アイコン */
 function getIcon(w){
   if(w==="Clear") return "images/sunny.png";
   if(w==="Clouds") return "images/cloudy.png";
@@ -142,7 +159,7 @@ function getIcon(w){
   return "images/cloudy.png";
 }
 
-/* ===== 背景（今日カード） ===== */
+/* 背景 */
 function setBackground(w){
   let bg="";
   if(w==="Clear") bg="images/bg-clear.jpg";
@@ -151,16 +168,15 @@ function setBackground(w){
 
   const card = document.getElementById("today-card");
   card.style.backgroundImage = "url("+bg+")";
-  card.style.backgroundSize="cover";
 }
 
-/* ===== 雨 ===== */
+/* 雨 */
 function setRain(w){
-  const el=document.getElementById("rain");
-  el.style.display=(w==="Rain"||w==="Drizzle")?"block":"none";
+  document.getElementById("rain").style.display =
+    (w==="Rain"||w==="Drizzle")?"block":"none";
 }
 
-/* ===== 温度色 ===== */
+/* 温度色 */
 function tempColor(t){
   if(t>=30)return "red";
   if(t>=20)return "orange";
@@ -168,11 +184,10 @@ function tempColor(t){
   return "lightblue";
 }
 
-/* ===== 今日 ===== */
+/* 今日 */
 fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
 .then(r=>r.json())
 .then(d=>{
-
   setBackground(d.weather[0].main);
   setRain(d.weather[0].main);
 
@@ -189,7 +204,7 @@ fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}
      風 ${d.wind.speed}m/s`;
 });
 
-/* ===== 週間 ===== */
+/* 週間 */
 fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
 .then(r=>r.json())
 .then(d=>{
@@ -198,7 +213,6 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
 
   d.list.forEach(i=>{
     const date=i.dt_txt.split(" ")[0];
-
     if(!map[date]){
       map[date]={temps:[],weather:i.weather[0].main};
     }
@@ -207,6 +221,7 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
 
   const days=Object.keys(map).slice(0,5);
   const el=document.getElementById("forecast");
+
   el.innerHTML="";
 
   days.forEach(date=>{
@@ -219,13 +234,15 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
 
     div.innerHTML=
       `<div>${formatDate(date)}</div>
-       <img src="${getIcon(map[date].weather)}" class="small-icon     <span style="color:${tempColor(max)}">${Math.round(max)}℃</span>
-       /
-       <span style="color:${tempColor(min)}">${Math.round(min)}℃</span>
+       <img src="${getIcon(map[date].weather)}" class="small">
+         <span class="max" style="color:${tempColor(max)}">${Math.round(max)}℃</span>
+         <span>/</span>
+         <span class="min" style="color:${tempColor(min)}">${Math.round(min)}℃</span>
        </div>`;
 
     el.appendChild(div);
   });
+
 });
 </script>
 
