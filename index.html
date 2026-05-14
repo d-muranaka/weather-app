@@ -20,7 +20,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-    /* 横並び確実にする */
     #forecast {
       display: flex;
       justify-content: center;
@@ -60,60 +59,67 @@
     const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
     const city = "Tokyo";
 
-    // アイコン取得
-    function getWeatherIcon(weatherMain) {
+    // アイコンパス返す（シンプルに）
+    function getWeatherIconPath(weatherMain) {
       switch (weatherMain) {
         case "Clear":
-          return '<img src="images/sunny.png" width="ouds":
-          return '<img src="images/cloudy.png" width="in":
+          return "images/sunny.png";
+        case "Clouds":
+          return "images/cloudy.png";
+        case "Rain":
         case "Drizzle":
-          return '<img src="images/rain.png" width="50":
-          return '<img src="images/snow.png" width="50derstorm":
-          return '<img src="images/thunder.png" width="50         return '<img src="images/cloudy.png" width="50 // ✅ 今日の天気
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
-      .then(res => res.json())
-      .then(data => {
-        const weatherMain = data.weather[0].main;
-
-        document.getElementById("weather").innerHTML = `
-          <p>${data.name}</p>
-          <p>${data.weather[0].description}</p>
-          <p>${Math.round(data.main.temp)}℃</p>
-        `;
-
-        document.getElementById("weather-icon").src =
-          getWeatherIcon(weatherMain).match(/src="(.*?)"/)[1];
-      });
-
-    // 週間データ整理（12時のみ）
-    function getDailyForecast(list) {
-      return list.filter(item =>
-        item.dt_txt.includes("12:00:00")
-      );
+          return "images/rain.png";
+        case "Snow":
+          return "images/snow.png";
+        case "Thunderstorm":
+          return "images/thunder.png";
+        default:
+          return "images/cloudy.png";
+      }
     }
 
-    // 週間天気（DOMで確実に追加）
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
+    // 今日の天気
+    fetch("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey + "&units=metric&lang=ja")
+      .then(res => res.json())
+      .then(data => {
+        const iconPath = getWeatherIconPath(data.weather[0].main);
+
+        document.getElementById("weather").innerHTML =
+          "<p>" + data.name + "</p>" +
+          "<p>" + data.weather[0].description + "</p>" +
+          "<p>" + Math.round(data.main.temp) + "℃</p>";
+
+        document.getElementById("weather-icon").src = iconPath;
+      });
+
+    // 週間データ整理
+    function getDailyForecast(list) {
+      return list.filter(function(item) {
+        return item.dt_txt.indexOf("12:00:00") !== -1;
+      });
+    }
+
+    // 週間天気
+    fetch("https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&appid=" + apiKey + "&units=metric&lang=ja")
       .then(res => res.json())
       .then(data => {
 
         const days = getDailyForecast(data.list);
         const forecastEl = document.getElementById("forecast");
 
-        forecastEl.innerHTML = ""; // 初期化
+        forecastEl.innerHTML = "";
 
-        days.forEach(day => {
+        days.forEach(function(day) {
           const date = day.dt_txt.split(" ")[0].slice(5);
-          const iconHTML = getWeatherIcon(day.weather[0].main);
+          const iconPath = getWeatherIconPath(day.weather[0].main);
 
           const div = document.createElement("div");
           div.className = "day";
 
-          div.innerHTML = `
-            <p>${date}</p>
-            ${iconHTML}
-            <p>${Math.round(day.main.temp)}℃</p>
-          `;
+          div.innerHTML =
+            "<p>" + date + "</p>" +
+            "<img src=\"" + iconPath + "\" width=\"50\">" +
+            "<p>" + Math.round(day.main.temp) + "℃</p>";
 
           forecastEl.appendChild(div);
         });
