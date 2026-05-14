@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>天気アプリ4</title>
+<title>天気アプリ</title>
 
 <style>
 body {
@@ -163,14 +163,6 @@ function setRain(w){
     (w==="Rain"||w==="Drizzle")?"block":"none";
 }
 
-/* 温度色 */
-function tempColor(t){
-  if(t>=30)return "red";
-  if(t>=20)return "orange";
-  if(t>=10)return "blue";
-  return "lightblue";
-}
-
 /* 今日 */
 fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
 .then(r=>r.json())
@@ -223,8 +215,8 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
       `<div>${formatDate(date)}</div>
        <img src="${getIcon(map[date].weather)}" class="small"></img>
        <div class="temp">
-         <span style="color:${tempColor(max)}">${Math.round(max)}℃</span> /
-         <span style="color:${tempColor(min)}">${Math.round(min)}℃</span>
+         <span style="color:orange">${Math.round(max)}℃</span> /
+         <span style="color:blue}">${Math.round(min)}℃</span>
        </div>`;
 
     el.appendChild(div);
