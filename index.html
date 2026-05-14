@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>天気アプリ</title>
+<title>天気アプリ2</title>
 
 <style>
 body {
@@ -15,6 +15,7 @@ body {
   background-attachment: fixed;
 }
 
+/* タイトル */
 h2 {
   color: white;
   text-shadow: 0 3px 10px rgba(0,0,0,0.9);
@@ -61,7 +62,8 @@ h2 {
   background: rgba(255,255,255,0.92);
   padding: 12px;
   border-radius: 12px;
-  width: 110px;
+
+  width: 120px;  /* ✅ 少し拡張 */
 
   display: flex;
   flex-direction: column;
@@ -78,10 +80,11 @@ h2 {
   object-fit: contain;
 }
 
-/* ✅ 温度最終版 */
+/* ✅ 温度 完全修正版 */
 .temp {
   font-weight: bold;
   font-size: 14px;
+  white-space: nowrap;  /* ✅ 1行固定 */
 }
 
 /* 雨 */
