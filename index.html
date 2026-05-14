@@ -20,24 +20,26 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
+    /* ✅ 横並びのキモ */
     #forecast {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 15px;
+      flex-wrap: wrap; /* ← これで崩れ防止 */
     }
 
     .day {
       background: white;
       padding: 10px;
       border-radius: 8px;
-      width: 80px;
+      width: 90px; /* ← 幅固定が重要 */
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
     }
 
     img {
       display: block;
-      margin: 0 auto;
+      margin: 5px auto;
     }
   </style>
 </head>
@@ -57,7 +59,6 @@
     const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
     const city = "Tokyo";
 
-    // 天気に応じたアイコン取得
     function getWeatherIcon(weatherMain) {
       switch (weatherMain) {
         case "Clear":
@@ -86,13 +87,13 @@
         document.getElementById("weather").innerHTML = `
           <p>${data.name}</p>
           <p>${data.weather[0].description}</p>
-          <p>${data.main.temp}℃</p>
+          <p>${Math.round(data.main.temp)}℃</p>
         `;
 
         document.getElementById("weather-icon").src = icon;
       });
 
-    // 週間天気用（5日）
+    // 週間データ整理
     function getDailyForecast(list) {
       const daily = [];
 
@@ -105,6 +106,7 @@
       return daily;
     }
 
+    // 週間天気
     fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
       .then(res => res.json())
       .then(data => {
@@ -119,14 +121,13 @@
           html += `
             <div class="day">
               <p>${date}</p>
-              <img src="${icon}" width="{Math.round(day.main.temp)}℃</p>
+              <img src="${icon}" width="50ath.round(day.main.temp)}℃</p>
             </div>
           `;
         });
 
         document.getElementById("forecast").innerHTML = html;
       });
-
   </script>
 
 </body>
