@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>天気アプリ</title>
+<title>天気アプリ８</title>
 
 <style>
 body {
@@ -46,6 +46,15 @@ h2 {
   top: 15px;
   right: 15px;
   font-size: 14px;
+}
+
+/* ✅ アイコン（中央） */
+.today-icon {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
 }
 
 /* ✅ 天気 + 温度（左寄せ中央） */
@@ -115,6 +124,7 @@ h2 {
   <div class="overlay"></div>
 
   <div id="today-date" class="today-date"></div>
+  <img id="weather-icon" class="today-icon">
 
   <div id="today-main" class="today-main"></div>
   <div id="today-sub" class="today-sub"></div>
