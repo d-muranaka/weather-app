@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>自分専用天気</title>
+</head>
+<body>
+  <h1>今日の天気</h1>
+  <div id="weather"></div>
+
+  <script>
+    const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
+    const city = "Tokyo";
+
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("weather").innerHTML = `
+          <p>場所: ${data.name}</p>
+          <p>天気: ${data.weather[0].description}</p>
+          <p>気温: ${data.main.temp}℃</p>
+        `;
+      });
+  </script>
+</body>
+</html>
