@@ -16,13 +16,27 @@
       margin-top: 30px;
     }
 
-    .card {
-      background: white;
-      padding: 20px;
-      margin: 10px auto;
+    /* ✅ 今日カード（背景付き） */
+    .today-card {
       width: 320px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin: 10px auto;
+      padding: 20px;
+      border-radius: 15px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .today-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .today-content {
+      position: relative;
+      z-index: 2;
     }
 
     #forecast {
@@ -70,10 +84,13 @@
 
   <h2>今日の天気</h2>
 
-  <div class="card">
-    <p id="today-date" class="date"></p>
-    <img id="weather-icon" class="big-icon">
-    <div id="weather"></div>
+  <div id="today-card" class="today-card">
+    <div class="today-overlay"></div>
+    <div class="today-content">
+      <p id="today-date" class="date"></p>
+      <img id="weather-icon" class="big-icon">
+      <div id="weather"></div>
+    </div>
   </div>
 
   <h2>週間天気</h2>
@@ -83,7 +100,6 @@
     const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
     const city = "Tokyo";
 
-    // ✅ 日付フォーマット
     function formatDate(dateStr) {
       const date = new Date(dateStr);
       const month = date.getMonth() + 1;
@@ -93,20 +109,25 @@
       return month + "月" + day + "日(" + weekday + ")";
     }
 
-    // ✅ 背景変更
-    function setBackground(weatherMain) {
-      let color = "#f0f4f8";
+    // ✅ 今日カードの背景設定（グラデーション）
+    function setTodayBackground(weatherMain) {
+      let bg = "";
 
-      if (weatherMain === "Clear") color = "#87CEEB";
-      else if (weatherMain === "Clouds") color = "#cfd8dc";
-      else if (weatherMain === "Rain" || weatherMain === "Drizzle") color = "#90a4ae";
-      else if (weatherMain === "Snow") color = "#e1f5fe";
-      else if (weatherMain === "Thunderstorm") color = "#78909c";
+      if (weatherMain === "Clear") {
+        bg = "linear-gradient(to top, #87CEEB, #4facfe)";
+      } else if (weatherMain === "Clouds") {
+        bg = "linear-gradient(to top, #757f9a, #d7dde8)";
+      } else if (weatherMain === "Rain" || weatherMain === "Drizzle") {
+        bg = "linear-gradient(to top, #4b6cb7, #182848)";
+      } else if (weatherMain === "Snow") {
+        bg = "linear-gradient(to top, #e6dada, #274046)";
+      } else if (weatherMain === "Thunderstorm") {
+        bg = "linear-gradient(to top, #232526, #414345)";
+      }
 
-      document.body.style.background = color;
+      document.getElementById("today-card").style.background = bg;
     }
 
-    // ✅ アイコン
     function getWeatherIconPath(weatherMain) {
       switch (weatherMain) {
         case "Clear": return "images/sunny.png";
@@ -127,9 +148,8 @@
         const weatherMain = data.weather[0].main;
         const iconPath = getWeatherIconPath(weatherMain);
 
-        setBackground(weatherMain);
+        setTodayBackground(weatherMain);
 
-        // ✅ 今日の日付
         const today = new Date();
         document.getElementById("today-date").textContent =
           formatDate(today.toISOString());
@@ -137,12 +157,14 @@
         document.getElementById("weather").innerHTML =
           "<p>" + data.name + "</p>" +
           "<p>" + data.weather[0].description + "</p>" +
-          "<p>" + Math.round(data.main.temp) + "℃</p>";
+          "<p>" + Math.round(data.main.temp) + "℃</p>" +
+          "<p>湿度：" + data.main.humidity + "%</p>" +
+          "<p>風速：" + data.wind.speed + "m/s</p>";
 
         document.getElementById("weather-icon").src = iconPath;
       });
 
-    // ✅ 日ごとに最高・最低を計算
+    // ✅ 日ごとに最高/最低
     function groupForecast(list) {
       const daily = {};
 
@@ -191,12 +213,14 @@
           div.innerHTML =
             "<p class='date'>" + formattedDate + "</p>" +
             "<img src=\"" + iconPath + "\" class='small-icon'>" +
-            "<p class='temp'>↑" + Math.round(day.max) + "℃</p>" +
-            "<p class='temp'>↓" + Math.round(day.min) + "℃</p>";
+            "<p class='temp'>" +
+            Math.round(day.max) + "℃ / " +
+            Math.round(day.min) + "℃</p>";
 
           forecastEl.appendChild(div);
         });
       });
+
   </script>
 
 </body>
