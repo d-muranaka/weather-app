@@ -54,10 +54,10 @@
   <div id="forecast"></div>
 
   <script>
-    const apiKey = "あなたのAPIキー";
+    const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
     const city = "Tokyo";
 
-    // ✅ 天気に応じたアイコン取得
+    // 天気に応じたアイコン取得
     function getWeatherIcon(weatherMain) {
       switch (weatherMain) {
         case "Clear":
@@ -76,7 +76,7 @@
       }
     }
 
-    // ✅ 今日の天気
+    // 今日の天気
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ja`)
       .then(res => res.json())
       .then(data => {
@@ -92,7 +92,7 @@
         document.getElementById("weather-icon").src = icon;
       });
 
-    // ✅ 週間天気用（5日）
+    // 週間天気用（5日）
     function getDailyForecast(list) {
       const daily = [];
 
