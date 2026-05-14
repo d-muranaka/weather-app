@@ -12,10 +12,14 @@
       transition: background 0.5s;
     }
 
+    h2 {
+      margin-top: 30px;
+    }
+
     .card {
       background: white;
       padding: 20px;
-      margin: 20px auto;
+      margin: 10px auto;
       width: 320px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -33,7 +37,7 @@
       background: white;
       padding: 10px;
       border-radius: 8px;
-      width: 110px; /* 少し広げました */
+      width: 120px;
       text-align: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
@@ -52,16 +56,22 @@
     }
 
     .date {
-      font-size: 14px;
       font-weight: bold;
+      font-size: 14px;
+    }
+
+    .temp {
+      font-size: 13px;
     }
   </style>
 </head>
 
 <body>
 
+  <h2>今日の天気</h2>
+
   <div class="card">
-    <h2>今日の天気</h2>
+    <p id="today-date" class="date"></p>
     <img id="weather-icon" class="big-icon">
     <div id="weather"></div>
   </div>
@@ -73,14 +83,13 @@
     const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
     const city = "Tokyo";
 
-    // ✅ 日付フォーマット変換
+    // ✅ 日付フォーマット
     function formatDate(dateStr) {
       const date = new Date(dateStr);
       const month = date.getMonth() + 1;
       const day = date.getDate();
       const weekdays = ["日","月","火","水","木","金","土"];
       const weekday = weekdays[date.getDay()];
-
       return month + "月" + day + "日(" + weekday + ")";
     }
 
@@ -88,17 +97,11 @@
     function setBackground(weatherMain) {
       let color = "#f0f4f8";
 
-      if (weatherMain === "Clear") {
-        color = "#87CEEB";
-      } else if (weatherMain === "Clouds") {
-        color = "#cfd8dc";
-      } else if (weatherMain === "Rain" || weatherMain === "Drizzle") {
-        color = "#90a4ae";
-      } else if (weatherMain === "Snow") {
-        color = "#e1f5fe";
-      } else if (weatherMain === "Thunderstorm") {
-        color = "#78909c";
-      }
+      if (weatherMain === "Clear") color = "#87CEEB";
+      else if (weatherMain === "Clouds") color = "#cfd8dc";
+      else if (weatherMain === "Rain" || weatherMain === "Drizzle") color = "#90a4ae";
+      else if (weatherMain === "Snow") color = "#e1f5fe";
+      else if (weatherMain === "Thunderstorm") color = "#78909c";
 
       document.body.style.background = color;
     }
@@ -106,19 +109,13 @@
     // ✅ アイコン
     function getWeatherIconPath(weatherMain) {
       switch (weatherMain) {
-        case "Clear":
-          return "images/sunny.png";
-        case "Clouds":
-          return "images/cloudy.png";
+        case "Clear": return "images/sunny.png";
+        case "Clouds": return "images/cloudy.png";
         case "Rain":
-        case "Drizzle":
-          return "images/rain.png";
-        case "Snow":
-          return "images/snow.png";
-        case "Thunderstorm":
-          return "images/thunder.png";
-        default:
-          return "images/cloudy.png";
+        case "Drizzle": return "images/rain.png";
+        case "Snow": return "images/snow.png";
+        case "Thunderstorm": return "images/thunder.png";
+        default: return "images/cloudy.png";
       }
     }
 
@@ -126,10 +123,16 @@
     fetch("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey + "&units=metric&lang=ja")
       .then(res => res.json())
       .then(data => {
+
         const weatherMain = data.weather[0].main;
         const iconPath = getWeatherIconPath(weatherMain);
 
         setBackground(weatherMain);
+
+        // ✅ 今日の日付
+        const today = new Date();
+        document.getElementById("today-date").textContent =
+          formatDate(today.toISOString());
 
         document.getElementById("weather").innerHTML =
           "<p>" + data.name + "</p>" +
@@ -139,11 +142,32 @@
         document.getElementById("weather-icon").src = iconPath;
       });
 
-    // ✅ 週間データ
-    function getDailyForecast(list) {
-      return list.filter(function(item) {
-        return item.dt_txt.indexOf("12:00:00") !== -1;
+    // ✅ 日ごとに最高・最低を計算
+    function groupForecast(list) {
+      const daily = {};
+
+      list.forEach(function(item) {
+        const date = item.dt_txt.split(" ")[0];
+
+        if (!daily[date]) {
+          daily[date] = {
+            temps: [],
+            weather: item.weather[0].main
+          };
+        }
+
+        daily[date].temps.push(item.main.temp);
       });
+
+      return Object.keys(daily).map(date => {
+        const temps = daily[date].temps;
+        return {
+          date: date,
+          weather: daily[date].weather,
+          max: Math.max(...temps),
+          min: Math.min(...temps)
+        };
+      }).slice(0, 5);
     }
 
     // ✅ 週間天気
@@ -151,28 +175,27 @@
       .then(res => res.json())
       .then(data => {
 
-        const days = getDailyForecast(data.list);
+        const days = groupForecast(data.list);
         const forecastEl = document.getElementById("forecast");
 
         forecastEl.innerHTML = "";
 
         days.forEach(function(day) {
 
-          const dateFull = day.dt_txt.split(" ")[0];
-          const formattedDate = formatDate(dateFull);
-          const iconPath = getWeatherIconPath(day.weather[0].main);
+          const formattedDate = formatDate(day.date);
+          const iconPath = getWeatherIconPath(day.weather);
 
           const div = document.createElement("div");
           div.className = "day";
 
           div.innerHTML =
             "<p class='date'>" + formattedDate + "</p>" +
-            "<img src=\"" + iconPath + "\" class=\"small-icon\">" +
-            "<p>" + Math.round(day.main.temp) + "℃</p>";
+            "<img src=\"" + iconPath + "\" class='small-icon'>" +
+            "<p class='temp'>↑" + Math.round(day.max) + "℃</p>" +
+            "<p class='temp'>↓" + Math.round(day.min) + "℃</p>";
 
           forecastEl.appendChild(div);
         });
-
       });
   </script>
 
