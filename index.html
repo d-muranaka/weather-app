@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>天気アプリ</title>
+<title>天気アプリ3</title>
 
 <style>
 body {
@@ -62,13 +62,11 @@ h2 {
   background: rgba(255,255,255,0.92);
   padding: 12px;
   border-radius: 12px;
-
-  width: 120px;  /* ✅ 少し拡張 */
+  width: 120px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-
   gap: 8px;
 
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -80,11 +78,11 @@ h2 {
   object-fit: contain;
 }
 
-/* ✅ 温度 完全修正版 */
+/* ✅ 温度（完全固定） */
 .temp {
   font-weight: bold;
   font-size: 14px;
-  white-space: nowrap;  /* ✅ 1行固定 */
+  white-space: nowrap;   /* ← これが決定打 */
 }
 
 /* 雨 */
@@ -129,15 +127,17 @@ h2 {
 <div id="forecast"></div>
 
 <script>
-const apiKey = "53c7f49e01f46f614bb7c85c423ff578";
+const apiKey = "あなたのAPIキー";
 const city = "Tokyo";
 
+/* 日付 */
 function formatDate(dateStr){
   const d = new Date(dateStr);
   const w = ["日","月","火","水","木","金","土"];
   return (d.getMonth()+1)+"月"+d.getDate()+"日("+w[d.getDay()]+")";
 }
 
+/* アイコン */
 function getIcon(w){
   if(w==="Clear") return "images/sunny.png";
   if(w==="Clouds") return "images/cloudy.png";
@@ -146,6 +146,7 @@ function getIcon(w){
   return "images/cloudy.png";
 }
 
+/* 背景 */
 function setBackground(w){
   let bg="";
   if(w==="Clear") bg="images/bg-clear.jpg";
@@ -156,11 +157,13 @@ function setBackground(w){
     "url("+bg+")";
 }
 
+/* 雨 */
 function setRain(w){
   document.getElementById("rain").style.display =
     (w==="Rain"||w==="Drizzle")?"block":"none";
 }
 
+/* 温度色 */
 function tempColor(t){
   if(t>=30)return "red";
   if(t>=20)return "orange";
@@ -217,12 +220,11 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
     div.className="day";
 
     div.innerHTML =
-  `<div>${formatDate(date)}</div>
-   " class="small-icon">
-   <div class="temp">
-     <span style="color:${tempColor(max)}">${Math.round(max)}℃</span> /
-     <span style="color:${tempColor(min)}">${Math.round(min)}℃</span>
-   </div>`;
+      `<div>${formatDate(date)}</div>
+       <img src="${getIcon(map[date].weather)}" class="small">
+         <span style="color:${tempColor(max)}">${Math.round(max)}℃</span> /
+         <span style="color:${tempColor(min)}">${Math.round(min)}℃</span>
+       </div>`;
 
     el.appendChild(div);
   });
