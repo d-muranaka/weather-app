@@ -203,10 +203,7 @@ fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}
   setBackground(d.weather[0].main);
 
   document.getElementById("today-date").innerText =
-    "東京都" + formatDate(new Date());
-
-  document.getElementById("weather-icon").src =
-    getIcon(d.weather[0].main);
+    "東京都 " + formatDate(new Date());
 
   /* ✅ 曇りがち + 温度 */
   document.getElementById("today-main").innerHTML =
@@ -266,4 +263,3 @@ fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey
 
 </body>
 </html>
-``
